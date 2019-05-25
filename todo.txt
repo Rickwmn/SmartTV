@@ -1,0 +1,3 @@
+- Make Setup GUI
+- Store info in sqlite3 database
+- Modify scripts to pull data from database
