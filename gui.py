@@ -1,4 +1,6 @@
 from gi.repository import Gtk, Gio
+import weather
+LEFT_BAR_WIDTH = 300
 
 
 class Action():
@@ -26,9 +28,35 @@ class ListTile(Gtk.Box):
 class WeatherBox(Gtk.Grid):
     def __init__(self):
         Gtk.Grid.__init__(self)
-        icon = Gio.ThemedIcon(name="weather-clear")
+        curWeather = weather.Weather(testMode=False)
+        condition = curWeather.iconCode
+        conditions = {"01d": "weather-clear",
+                      "02d": "weather-few-clouds",
+                      "03d": "weather-overcast",
+                      "04d": "weather-overcast",
+                      "09d": "weather-showers",
+                      "10d": "weather-showers-scattered",
+                      "11d": "weather-storm",
+                      "13d": "weather-snow",
+                      "50d": "weather-fog",
+                      "01n": "weather-clear-night",
+                      "02n": "weather-few-clouds-night",
+                      "03n": "weather-overcast",
+                      "04n": "weather-overcast",
+                      "09n": "weather-showers",
+                      "10n": "weather-showers-scattered",
+                      "11n": "weather-storm",
+                      "13n": "weather-snow",
+                      "50n": "weather-fog"}
+        icon = Gio.ThemedIcon(name=conditions[condition])
         image = Gtk.Image.new_from_gicon(icon, 6)
+        image.set_pixel_size(LEFT_BAR_WIDTH-4)
+        image.set_halign(Gtk.Align.CENTER)
         self.add(image)
+        label = Gtk.Label()
+        label.set_markup(
+            '<big><big><big><b>{}</b></big></big></big>'.format(str(curWeather.temperature)+"°C"))
+        self.attach(label, 0, 1, 1, 1)
 
 
 class LeftBar(Gtk.ScrolledWindow):
@@ -38,7 +66,7 @@ class LeftBar(Gtk.ScrolledWindow):
                    Action("Files", "folder", lambda:0),
                    Action("Settings", "open-menu", lambda:0), ]
         Gtk.ScrolledWindow.__init__(self)
-        self.set_min_content_width(300)
+        self.set_min_content_width(LEFT_BAR_WIDTH)
         self.listview = Gtk.ListBox()
         self.listview.set_selection_mode(0)
         self.listview.insert(WeatherBox(), 0)
