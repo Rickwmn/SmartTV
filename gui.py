@@ -1,3 +1,6 @@
+import gi
+import sys
+gi.require_version("Gtk","3.0")
 from gi.repository import Gtk, Gio
 import weather
 LEFT_BAR_WIDTH = 300
@@ -28,7 +31,7 @@ class ListTile(Gtk.Box):
 class WeatherBox(Gtk.Grid):
     def __init__(self):
         Gtk.Grid.__init__(self)
-        curWeather = weather.Weather(testMode=False)
+        curWeather = weather.Weather(testMode=True)
         condition = curWeather.iconCode
         conditions = {"01d": "weather-clear",
                       "02d": "weather-few-clouds",
@@ -78,6 +81,7 @@ class LeftBar(Gtk.ScrolledWindow):
 class MainWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="SmartTV OpenSource")
+        self.set_default_size(int(sys.argv[1].split("x")[0]),int(sys.argv[1].split("x")[1]))
         self.main_divider = Gtk.Box(spacing=6)
         self.add(self.main_divider)
         self.main_divider.pack_start(LeftBar(), False, True, 0)
