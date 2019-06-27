@@ -1,3 +1,5 @@
-- Make Setup GUI
-- Store info in sqlite3 database
-- Modify scripts to pull data from database
+- Make Setup GUI CANCELLED
+- Store info in sqlite3 database WORK IN PROGRESS
+- Modify scripts to pull data from database DONE
+- make settings page WORK IN PROGRESS
+- make Login WORK IN PROGRESS

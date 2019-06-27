@@ -8,8 +8,15 @@ from requests import get
 from math import ceil, floor
 import sqlite3
 
-connection = sqlite3.connect("./settings/data.db")
-cursor = connection.cursor()
+
+try:
+    connection = sqlite3.connect("./settings/data.db")
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM Data WHERE username=\"{}\"".format(argv[1]))
+except:
+    system("python3 setup.py")
+    connection = sqlite3.connect("./settings/data.db")
+    cursor = connection.cursor()
 cursor.execute("SELECT * FROM Data WHERE username=\"{}\"".format(argv[1]))
 settings = cursor.fetchone()
 
@@ -82,7 +89,8 @@ class Category(Gtk.Box):
             orientation=Gtk.Orientation.HORIZONTAL)
         self.flowbox.set_min_children_per_line(7)
         self.flowbox.set_homogeneous(True)
-
+        self.flowbox.set_selection_mode(Gtk.SelectionMode.SINGLE)
+        self.flowbox.set_activate_on_single_click(False)
         for i, j in enumerate(items):
             self.flowbox.insert(
                 AppItem(j.getTitle(), j.getCovers()[1], width=width, heigth=heigth), i+1)
@@ -111,9 +119,10 @@ class MainWindow(Gtk.Window):
             Action("Trending", "go-home", lambda:0),
             Action("Apps", "view-grid", lambda: 0),
             Action("Movies", "media-tape", lambda: 0),
+            Action("Songs", "media-optical-cd-audio", lambda: 0),
             Action("Files", "folder", lambda: 0),
             Action("Settings", "open-menu",
-                   lambda: system("python3 " + path.abspath("settings.py") + " 300")),
+                   lambda: system("python3 " + path.abspath("settings.py") + " " + argv[1])),
         ]
         Gtk.Window.__init__(self, title="SmartTV OpenSource")
         self.set_default_size(Gdk.Screen.get_default().get_width(),

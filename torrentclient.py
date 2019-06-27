@@ -27,9 +27,8 @@ class Torrent:
         remove("temp.torrent")
 
     def start(self):
-        info("bla")
         self.torrent = self.session.add_torrent(
-            {'ti': self.info, 'save_path': '/home/cigla/Downloads'})
+            {'ti': self.info, 'save_path': './downloads'})
         while not self.torrent.is_seed():
             self.status = self.torrent.status()
             self.state_str = [
@@ -56,10 +55,10 @@ def start(url):
     mytorrent.start()
 
 
-p = Process(target=start,
-            args=(
-                "https://yts.lt/torrent/download/BCEB706EA32EDD855FCA4426DF8A7831F53CC3EE")
-            )
-p.start()
-while True:
-    print("bla")
+# p = Process(target=start,
+#             args=(
+#                 "https://yts.lt/torrent/download/BCEB706EA32EDD855FCA4426DF8A7831F53CC3EE")
+#             )
+# p.start()
+# while True:
+#     print("bla")
