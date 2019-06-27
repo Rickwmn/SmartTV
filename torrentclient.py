@@ -7,13 +7,6 @@ from os import remove
 import os
 
 
-def info(title):
-    print(title)
-    print('module name:', __name__)
-    print('parent process:', os.getppid())
-    print('process id:', os.getpid())
-
-
 class Torrent:
     def __init__(self):
         self.session = lt.session()
@@ -57,14 +50,16 @@ class Torrent:
         return 0
 
 
-def start():
+def start(url):
     mytorrent = Torrent()
-    mytorrent.torrent_from_url(
-        "https://yts.lt/torrent/download/BCEB706EA32EDD855FCA4426DF8A7831F53CC3EE")
+    mytorrent.torrent_from_url(url)
     mytorrent.start()
 
 
-p = Process(target=start)
+p = Process(target=start,
+            args=(
+                "https://yts.lt/torrent/download/BCEB706EA32EDD855FCA4426DF8A7831F53CC3EE")
+            )
 p.start()
 while True:
     print("bla")

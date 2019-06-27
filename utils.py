@@ -11,55 +11,42 @@ class Movie:
         self.json = jsonS
         self.parsed = json.loads(self.json)
 
-    @property
     def getId(self):
         return self.parsed["id"]
 
-    @property
     def getUrl(self):
         return self.parsed["url"]
 
-    @property
     def getImbdCode(self):
         return self.parsed["imdb_code"]
 
-    @property
     def getTitle(self):
         return self.parsed["title"]
 
-    @property
     def getTitleEn(self):
         return self.parsed["title_english"]
 
-    @property
     def getSlug(self):
         return self.parsed["slug"]
 
-    @property
     def getYear(self):
         return self.parsed["year"]
 
-    @property
     def getRating(self):
         return self.parsed["rating"]
 
-    @property
     def getGenres(self):
         return self.parsed["genres"]
 
-    @property
     def getDescription(self):
         return self.parsed["description_full"]
 
-    @property
     def getLanguage(self):
         return self.parsed["language"]
 
-    @property
     def getCovers(self):
         return [self.parsed["small_cover_image"], self.parsed["medium_cover_image"], self.parsed["large_cover_image"]]
 
-    @property
     def getTorrentData(self):
         return self.parsed["torrents"]
 

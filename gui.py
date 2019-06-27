@@ -6,15 +6,18 @@ from views import LeftBar
 from utils import getCardImg, Action, Movie, getMovies
 from requests import get
 from math import ceil, floor
+import sqlite3
 
-LEFT_BAR_WIDTH = 300
-PLACE_HOLDER = "https://picsum.photos/300/150"
+connection = sqlite3.connect("./settings/data.db")
+cursor = connection.cursor()
+cursor.execute("SELECT * FROM Data WHERE username=\"{}\"".format(argv[1]))
+settings = cursor.fetchone()
+
+
+LEFT_BAR_WIDTH = settings[9]
+CACHE_FOLDER = "./cache"
 FNAME = "placeholder.png"
 TESTMODE = True
-
-
-if len(argv) > 1:
-    TESTMODE = bool(int(argv[1]))
 
 
 class WeatherBox(Gtk.Grid):
@@ -55,10 +58,8 @@ class AppItem(Gtk.Grid):
     def __init__(self, name, image, width=300, heigth=150):
         Gtk.Grid.__init__(self)
         self.label = Gtk.Label()
-        print(len(name))
-        if len(name) > 34:
-            self.label.set_line_wrap(True)
-            self.label.set_justify(Gtk.Justification.CENTER)
+        self.label.set_line_wrap(True)
+        self.label.set_justify(Gtk.Justification.CENTER)
         self.label.set_label(name)
         self.label.set_valign(Gtk.Align.START)
         self.attach(getCardImg(
@@ -84,7 +85,7 @@ class Category(Gtk.Box):
 
         for i, j in enumerate(items):
             self.flowbox.insert(
-                AppItem(j.getTitle, j.getCovers[1], width=width, heigth=heigth), i+1)
+                AppItem(j.getTitle(), j.getCovers()[1], width=width, heigth=heigth), i+1)
         self.view.add(self.flowbox)
 
 
@@ -112,7 +113,7 @@ class MainWindow(Gtk.Window):
             Action("Movies", "media-tape", lambda: 0),
             Action("Files", "folder", lambda: 0),
             Action("Settings", "open-menu",
-                   lambda: system("python3 " + path.abspath("settings.py"))),
+                   lambda: system("python3 " + path.abspath("settings.py") + " 300")),
         ]
         Gtk.Window.__init__(self, title="SmartTV OpenSource")
         self.set_default_size(Gdk.Screen.get_default().get_width(),
@@ -120,7 +121,7 @@ class MainWindow(Gtk.Window):
         self.main_divider = Gtk.Box(spacing=6)
         self.add(self.main_divider)
         self.leftbar = LeftBar(
-            actions=left_bar_actions, left_bar_width=LEFT_BAR_WIDTH, start_index=0)
+            actions=left_bar_actions, left_bar_width=LEFT_BAR_WIDTH, start_index=1, ignore_start=1)
         self.leftbar.listview.insert(WeatherBox(), 0)
         self.main_divider.pack_start(self.leftbar, False, True, 0)
         self.main_divider.pack_end(MainBar(), True, True, 0)
