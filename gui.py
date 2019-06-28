@@ -9,14 +9,8 @@ from math import ceil, floor
 import sqlite3
 
 
-try:
-    connection = sqlite3.connect("./settings/data.db")
-    cursor = connection.cursor()
-    cursor.execute("SELECT * FROM Data WHERE username=\"{}\"".format(argv[1]))
-except:
-    system("python3 setup.py")
-    connection = sqlite3.connect("./settings/data.db")
-    cursor = connection.cursor()
+connection = sqlite3.connect("./settings/data.db")
+cursor = connection.cursor()
 cursor.execute("SELECT * FROM Data WHERE username=\"{}\"".format(argv[1]))
 settings = cursor.fetchone()
 
@@ -24,7 +18,7 @@ settings = cursor.fetchone()
 LEFT_BAR_WIDTH = settings[9]
 CACHE_FOLDER = "./cache"
 FNAME = "placeholder.png"
-TESTMODE = True
+TESTMODE = False
 
 
 class WeatherBox(Gtk.Grid):
@@ -61,17 +55,20 @@ class WeatherBox(Gtk.Grid):
         self.attach(label, 0, 1, 1, 1)
 
 
-class AppItem(Gtk.Grid):
+class AppItem(Gtk.Button):
     def __init__(self, name, image, width=300, heigth=150):
-        Gtk.Grid.__init__(self)
+        Gtk.Button.__init__(self)
+        self.grid = Gtk.Grid()
         self.label = Gtk.Label()
         self.label.set_line_wrap(True)
         self.label.set_justify(Gtk.Justification.CENTER)
         self.label.set_label(name)
         self.label.set_valign(Gtk.Align.START)
-        self.attach(getCardImg(
-            url=image, fname=FNAME, testMode=TESTMODE, width=width, heigth=heigth), 0, 0, 1, 1)
-        self.attach(self.label, 0, 1, 1, 1)
+        fname = "./cache/cover="+name+".png"
+        self.grid.attach(getCardImg(
+            url=image, fname=fname, width=width, heigth=heigth), 0, 0, 1, 1)
+        self.grid.attach(self.label, 0, 1, 1, 1)
+        self.add(self.grid)
 
 
 class Category(Gtk.Box):
@@ -85,23 +82,22 @@ class Category(Gtk.Box):
         self.view.set_policy(Gtk.PolicyType.AUTOMATIC,
                              Gtk.PolicyType.NEVER)
         self.pack_end(self.view, True, True, 0)
-        self.flowbox = Gtk.FlowBox(
+
+        self.grid = Gtk.Grid(
             orientation=Gtk.Orientation.HORIZONTAL)
-        self.flowbox.set_min_children_per_line(7)
-        self.flowbox.set_homogeneous(True)
-        self.flowbox.set_selection_mode(Gtk.SelectionMode.SINGLE)
-        self.flowbox.set_activate_on_single_click(False)
+        self.grid.set_column_spacing(6)
+        self.grid.set_column_homogeneous(True)
         for i, j in enumerate(items):
-            self.flowbox.insert(
-                AppItem(j.getTitle(), j.getCovers()[1], width=width, heigth=heigth), i+1)
-        self.view.add(self.flowbox)
+            self.grid.attach(
+                AppItem(j.getTitle(), j.getCovers()[1], width=width, heigth=heigth), i, 0, 1, 1)
+        self.view.add(self.grid)
 
 
 class MainBar(Gtk.ScrolledWindow):
     def __init__(self):
         Gtk.ScrolledWindow.__init__(self)
         categories = {
-            "      Top Movies": getMovies(get("https://yts.lt/api/v2/list_movies.json?sort_by=download_count&minimum_rating=8&limit=7").text),
+            "      Newest Movies": getMovies(get("https://yts.lt/api/v2/list_movies.json?sort_by=year&minimum_rating=7&limit=12").text),
         }
         self.set_policy(
             Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)

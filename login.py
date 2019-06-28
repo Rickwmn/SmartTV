@@ -3,30 +3,33 @@ import sqlite3
 from requests import get
 from os.path import isfile
 from os import system
-from utils import scaleImgToCard
+from utils import getCardImg
+
+if not isfile("./settings/data.db"):
+    system("python3 setup.py")
 
 
-class LoginButton(Gtk.Grid):
+class LoginButton(Gtk.Button):
     def __init__(self, username, icon):
         self.username = username
-        Gtk.Box.__init__(self)
-        self.image = Gtk.Image()
-        if not isfile("./cache/"+username+".jpg"):
-            with open("./cache/"+username+".jpg", "wb") as file:
-                file.write(get(icon).content)
-
-        self.image = scaleImgToCard("./cache/"+username+".jpg", 128, 128)
+        Gtk.Bin.__init__(self)
+        self.image = getCardImg(
+            icon, "./cache/"+"username="+username+".jpg", 128, 128)
 
         if len(username) > 18:
             username = username[:15]+"..."
-        self.attach(self.image, 0, 0, 1, 1)
+        self.grid = Gtk.Grid()
+        self.grid.attach(self.image, 0, 0, 1, 1)
         self.label = Gtk.Label(label=username)
-        self.label.set_line_wrap(True)
         self.label.set_justify(Gtk.Justification.CENTER)
-        self.attach(self.label, 0, 1, 1, 1)
+        self.grid.attach(self.label, 0, 1, 1, 1)
+        self.add(self.grid)
 
-    def onClick(self):
+    def onClick(self, x):
+        print(x)
         system("python ./gui.py "+self.username)
+        print("hey")
+        Gtk.main_quit()
 
 
 class MainWindow(Gtk.Window):
@@ -35,23 +38,20 @@ class MainWindow(Gtk.Window):
         self.set_default_size(Gdk.Screen.get_default().get_width(),
                               Gdk.Screen.get_default().get_height())
 
-        self.flowbox = Gtk.FlowBox()
-        self.flowbox.set_valign(Gtk.Align.CENTER)
-        self.flowbox.set_halign(Gtk.Align.CENTER)
-        self.flowbox.set_orientation(Gtk.Orientation.VERTICAL)
-        self.flowbox.set_column_spacing(6)
-        self.flowbox.set_selection_mode(Gtk.SelectionMode.NONE)
-        self.add(self.flowbox)
+        self.grid = Gtk.Grid()
+        self.grid.set_valign(Gtk.Align.CENTER)
+        self.grid.set_halign(Gtk.Align.CENTER)
+        self.grid.set_orientation(Gtk.Orientation.VERTICAL)
+        self.grid.set_column_spacing(6)
+        self.add(self.grid)
 
         connection = sqlite3.connect("./settings/data.db")
         cursor = connection.cursor()
         cursor.execute("SELECT * FROM Data;")
         users = [LoginButton(i[1], i[8]) for i in cursor.fetchall()]
-        for i in users:
-            self.flowbox.add(i)
-        self.flowbox.connect("child_activated", lambda _,
-                             x: users[x.get_index()].onClick())
-        self.flowbox.unselect_all()
+        for i, j in enumerate(users):
+            j.connect("clicked", j.onClick)
+            self.grid.attach(j, i % 4, i//4, 1, 1)
 
 
 window = MainWindow()

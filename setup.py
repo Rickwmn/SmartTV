@@ -27,7 +27,7 @@ region = location.region
 
 
 cursor.execute(
-    "INSERT INTO DATA (username,email,age,measure,country,region,timezone,icon,leftbarwidth) VALUES (?,?,?,?,?,?,?,?,?);", (username, email, age, measure, country, region, timezone, icon, 250))
+    "INSERT INTO DATA (username,email,age,measure,country,region,timezone,icon,leftbarwidth) VALUES (?,?,?,?,?,?,?,?,?);", (username, email, age, measure, country, region, timezone, icon, 350))
 
 
 conn.commit()

@@ -4,22 +4,25 @@ from utils import Action
 from sys import argv
 import sqlite3
 
-try:
-    connection = sqlite3.connect("./settings/data.db")
-    cursor = connection.cursor()
-    cursor.execute("SELECT * FROM Data WHERE username=\"{}\"".format(argv[1]))
-except:
-    system("python3 setup.py")
-    connection = sqlite3.connect("./settings/data.db")
-    cursor = connection.cursor()
+
+connection = sqlite3.connect("./settings/data.db")
+cursor = connection.cursor()
 cursor.execute("SELECT * FROM Data WHERE username=\"{}\"".format(argv[1]))
 settings = cursor.fetchone()
 
 LEFT_BAR_WIDTH = settings[9]
 
 
+def propLabel(text):
+    label = Gtk.Label()
+    label.set_markup("<big>{}</big>".format(text))
+    return label
+
+
 def generalSettings():
     grid = Gtk.Grid()
+    grid.set_row_spacing(18)
+
     end = 3
     title = Gtk.Label()
     title.set_markup(
@@ -27,6 +30,14 @@ def generalSettings():
     title.set_hexpand(True)
     grid.attach(title, 0, 0, end, 1)
 
+    grid.attach(propLabel("Username"), 0, 1, 1, 1)
+    grid.attach(propLabel("E-Mail"), 0, 2, 1, 1)
+    grid.attach(propLabel("Units"), 0, 3, 1, 1)
+    grid.attach(propLabel("Location"), 0, 4, 1, 1)
+    grid.attach(propLabel("Timezone"), 0, 5, 1, 1)
+    spacer = Gtk.Label()
+    spacer.set_hexpand(True)
+    grid.attach(spacer, 1, 1, 1, 1)
     return grid
 
 

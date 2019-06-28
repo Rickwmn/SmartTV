@@ -1,7 +1,7 @@
 from gi.repository import Gtk, GdkPixbuf
 import requests
 import json
-
+from os.path import isfile
 
 # class TorrentData
 
@@ -67,19 +67,23 @@ def scaleImgToCard(fname, width=300, heigth=150):
     return img
 
 
-def getImageFromWeb(url, fname, testMode=True):
-    img = Gtk.Image()
-    if not testMode:
-        r = requests.get(url)
-        with open('placeholder.png', 'wb') as outfile:
-            outfile.write(r.content)
-    img.set_from_file(fname)
-    return img
+def getImageFromWeb(url, fname):
+    r = requests.get(url)
+    with open(fname, 'wb') as outfile:
+        outfile.write(r.content)
 
 
-def getCardImg(url, fname, testMode=True, width=300, heigth=150):
-    getImageFromWeb(url, fname, testMode)
-    return scaleImgToCard(fname, width=width, heigth=heigth)
+def getCardImg(url, fname, width=300, heigth=150):
+    if not isfile(fname):
+        getImageFromWeb(url, fname)
+
+    try:
+        image = scaleImgToCard(fname, width, heigth)
+    except:
+        getImageFromWeb(
+            "https://via.placeholder.com/{}x{}.png/ffffff/000000?text=Ooops, something went wrong!".format(width, heigth), fname)
+        image = scaleImgToCard(fname, width, heigth)
+    return image
 
 
 class Action():
