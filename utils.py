@@ -73,6 +73,10 @@ def getImageFromWeb(url, fname):
         outfile.write(r.content)
 
 
+def switchStack(index, stack):
+    stack.set_visible_child(stack.get_children()[index])
+    stack.get_children()[index].show()
+
 def getCardImg(url, fname, width=300, heigth=150):
     if not isfile(fname):
         getImageFromWeb(url, fname)

@@ -28,7 +28,6 @@ class LoginButton(Gtk.Button):
     def onClick(self, x):
         print(x)
         system("python ./gui.py "+self.username)
-        print("hey")
         Gtk.main_quit()
 
 
@@ -43,6 +42,7 @@ class MainWindow(Gtk.Window):
         self.grid.set_halign(Gtk.Align.CENTER)
         self.grid.set_orientation(Gtk.Orientation.VERTICAL)
         self.grid.set_column_spacing(6)
+        self.grid.set_row_spacing(6)
         self.add(self.grid)
 
         connection = sqlite3.connect("./settings/data.db")
@@ -51,7 +51,7 @@ class MainWindow(Gtk.Window):
         users = [LoginButton(i[1], i[8]) for i in cursor.fetchall()]
         for i, j in enumerate(users):
             j.connect("clicked", j.onClick)
-            self.grid.attach(j, i % 4, i//4, 1, 1)
+            self.grid.attach(j, i % 7, i//7, 1, 1)
 
 
 window = MainWindow()

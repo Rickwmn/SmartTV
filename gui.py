@@ -2,8 +2,8 @@ import weather
 from gi.repository import Gtk, Gdk, Gio
 from sys import argv
 from os import system, path
-from views import LeftBar
-from utils import getCardImg, Action, Movie, getMovies
+from views import LeftBar, MainStack
+from utils import getCardImg, Action, Movie, getMovies, switchStack
 from requests import get
 from math import ceil, floor
 import sqlite3
@@ -93,7 +93,7 @@ class Category(Gtk.Box):
         self.view.add(self.grid)
 
 
-class MainBar(Gtk.ScrolledWindow):
+class Trending(Gtk.ScrolledWindow):
     def __init__(self):
         Gtk.ScrolledWindow.__init__(self)
         categories = {
@@ -111,12 +111,23 @@ class MainBar(Gtk.ScrolledWindow):
 
 class MainWindow(Gtk.Window):
     def __init__(self):
+        self.main_view = MainStack(
+            [
+                Trending(),
+                Gtk.Label(label="Apps"),
+                Gtk.Label(label="Movies"),
+                Gtk.Label(label="Songs"),
+                Gtk.Label(label="Files"),
+                Gtk.Label(label="Settings"),
+            ])
         left_bar_actions = [
-            Action("Trending", "go-home", lambda:0),
-            Action("Apps", "view-grid", lambda: 0),
-            Action("Movies", "media-tape", lambda: 0),
-            Action("Songs", "media-optical-cd-audio", lambda: 0),
-            Action("Files", "folder", lambda: 0),
+            Action("Trending", "go-home", lambda:switchStack(0, self.main_view)),
+            Action("Apps", "view-grid", lambda: switchStack(1, self.main_view)),
+            Action("Movies", "media-tape",
+                   lambda: switchStack(2, self.main_view)),
+            Action("Songs", "media-optical-cd-audio",
+                   lambda: switchStack(3, self.main_view)),
+            Action("Files", "folder", lambda: switchStack(4, self.main_view)),
             Action("Settings", "open-menu",
                    lambda: system("python3 " + path.abspath("settings.py") + " " + argv[1])),
         ]
@@ -129,7 +140,8 @@ class MainWindow(Gtk.Window):
             actions=left_bar_actions, left_bar_width=LEFT_BAR_WIDTH, start_index=1, ignore_start=1)
         self.leftbar.listview.insert(WeatherBox(), 0)
         self.main_divider.pack_start(self.leftbar, False, True, 0)
-        self.main_divider.pack_end(MainBar(), True, True, 0)
+
+        self.main_divider.pack_end(self.main_view, True, True, 0)
 
 
 window = MainWindow()

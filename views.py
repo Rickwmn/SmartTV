@@ -13,6 +13,15 @@ class ListTile(Gtk.Box):
         self.pack_start(label, False, True, 6)
 
 
+class MainStack(Gtk.Stack):
+    def __init__(self, widgets):
+        Gtk.Stack.__init__(self)
+        self.set_transition_type(Gtk.StackTransitionType.SLIDE_UP_DOWN)
+        self.set_transition_duration(700)
+        for i, j in enumerate(widgets):
+            self.add_titled(j, "widget"+str(i), "page"+str(i))
+
+
 class LeftBar(Gtk.ScrolledWindow):
     def __init__(self, actions, left_bar_width=300, start_index=0, ignore_start=0):
         self.actions = actions

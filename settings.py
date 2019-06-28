@@ -1,6 +1,6 @@
 from gi.repository import Gtk, Gio, Gdk, GdkPixbuf
-from views import LeftBar
-from utils import Action
+from views import LeftBar, MainStack
+from utils import Action, switchStack
 from sys import argv
 import sqlite3
 
@@ -41,20 +41,6 @@ def generalSettings():
     return grid
 
 
-class SettingsStack(Gtk.Stack):
-    def __init__(self, widgets):
-        Gtk.Stack.__init__(self)
-        self.set_transition_type(Gtk.StackTransitionType.SLIDE_UP_DOWN)
-        self.set_transition_duration(700)
-        for i, j in enumerate(widgets):
-            self.add_titled(j, "widget"+str(i), "page"+str(i))
-
-
-def switchStack(index, stack):
-    stack.set_visible_child(stack.get_children()[index])
-    stack.get_children()[index].show()
-
-
 class Settings(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="SmartTV OpenSource")
@@ -77,7 +63,7 @@ class Settings(Gtk.Window):
         self.leftbar = LeftBar(
             actions=left_bar_actions, left_bar_width=LEFT_BAR_WIDTH, start_index=0)
         self.main_divider.pack_start(self.leftbar, False, True, 0)
-        self.settings_view = SettingsStack(
+        self.settings_view = MainStack(
             [
                 generalSettings(),
                 Gtk.Label(label="Look"),
