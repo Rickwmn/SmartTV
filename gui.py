@@ -15,7 +15,7 @@ cursor.execute("SELECT * FROM Data WHERE username=\"{}\"".format(argv[1]))
 settings = cursor.fetchone()
 
 
-LEFT_BAR_WIDTH = settings[9]
+LEFT_BAR_WIDTH = settings[10]
 CACHE_FOLDER = "./cache"
 FNAME = "placeholder.png"
 TESTMODE = False
@@ -24,7 +24,8 @@ TESTMODE = False
 class WeatherBox(Gtk.Grid):
     def __init__(self):
         Gtk.Grid.__init__(self)
-        curWeather = weather.Weather(testMode=TESTMODE)
+        curWeather = weather.Weather(
+            settings[4], settings[7], testMode=TESTMODE)
         condition = curWeather.iconCode
         conditions = {"01d": "weather-clear",
                       "02d": "weather-few-clouds",
@@ -50,8 +51,12 @@ class WeatherBox(Gtk.Grid):
         image.set_halign(Gtk.Align.CENTER)
         self.add(image)
         label = Gtk.Label()
+        if settings[4] == "metric":
+            me = "C"
+        else:
+            me = "F"
         label.set_markup(
-            '<big><big><big><b>{}</b></big></big></big>'.format(str(curWeather.temperature)+"°C"))
+            '<big><big><big><b>{}</b></big></big></big>'.format(str(curWeather.temperature)+chr(176)+me))
         self.attach(label, 0, 1, 1, 1)
 
 

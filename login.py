@@ -48,7 +48,7 @@ class MainWindow(Gtk.Window):
         connection = sqlite3.connect("./settings/data.db")
         cursor = connection.cursor()
         cursor.execute("SELECT * FROM Data;")
-        users = [LoginButton(i[1], i[8]) for i in cursor.fetchall()]
+        users = [LoginButton(i[1], i[9]) for i in cursor.fetchall()]
         for i, j in enumerate(users):
             j.connect("clicked", j.onClick)
             self.grid.attach(j, i % 7, i//7, 1, 1)

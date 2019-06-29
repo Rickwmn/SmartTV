@@ -4,7 +4,7 @@ import weather
 conn = sqlite3.connect("./settings/data.db")
 cursor = conn.cursor()
 cursor.execute(
-    "CREATE TABLE IF NOT EXISTS Data (id INTEGER PRIMARY KEY AUTOINCREMENT,username char(64) UNIQUE NOT NULL,email char(256) UNIQUE NOT NULL,age INTEGER, measure char(8),country char(64),region char(64),timezone char(32), icon char(512), leftbarwidth INTEGER, theme char(256));")
+    "CREATE TABLE IF NOT EXISTS Data (id INTEGER PRIMARY KEY AUTOINCREMENT,username char(64) UNIQUE NOT NULL,email char(256) UNIQUE NOT NULL,age INTEGER, measure char(8),country char(64),region char(64),city char(64),timezone char(32), icon char(512), leftbarwidth INTEGER, theme char(256));")
 
 measure = input("Mectric or Imperial?[m/i]:")
 if measure == "m":
@@ -24,10 +24,10 @@ location = weather.Location()
 timezone = location.timeZone
 country = location.country
 region = location.region
-
+city = location.city
 
 cursor.execute(
-    "INSERT INTO DATA (username,email,age,measure,country,region,timezone,icon,leftbarwidth) VALUES (?,?,?,?,?,?,?,?,?);", (username, email, age, measure, country, region, timezone, icon, 350))
+    "INSERT INTO DATA (username,email,age,measure,country,region,city,timezone,icon,leftbarwidth) VALUES (?,?,?,?,?,?,?,?,?,?);", (username, email, age, measure, country, region, city, timezone, icon, 350))
 
 
 conn.commit()

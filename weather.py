@@ -15,6 +15,10 @@ class Location:
             requests.get("http://ip-api.com/json/").text)
 
     @property
+    def city(self):
+        return self.location_info["city"]
+
+    @property
     def publicIP(self):
         return self.location_info["query"]
 
@@ -36,7 +40,7 @@ class Location:
 
 
 class Weather:
-    def __init__(self, testMode=True):
+    def __init__(self, measure, location, testMode=True):
         with open("keys.txt", "r") as f:
             self.apikey = f.read().split("\n")[0]
 
@@ -45,7 +49,7 @@ class Weather:
                 "https://samples.openweathermap.org/data/2.5/weather?q=London,uk&appid=b6907d289e10d714a6e88b30761fae22").text
         else:
             self.response = requests.get(
-                "https://api.openweathermap.org/data/2.5/weather?q=Novi%20Sad&units=metric&appid="+self.apikey).text
+                "https://api.openweathermap.org/data/2.5/weather?q={}&units={}&appid={}".format(location, measure, self.apikey)).text
 
         self.parsed = json.loads(self.response)
 

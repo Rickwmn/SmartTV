@@ -10,7 +10,7 @@ cursor = connection.cursor()
 cursor.execute("SELECT * FROM Data WHERE username=\"{}\"".format(argv[1]))
 settings = cursor.fetchone()
 
-LEFT_BAR_WIDTH = settings[9]
+LEFT_BAR_WIDTH = settings[10]
 
 
 def propLabel(text):
@@ -19,26 +19,39 @@ def propLabel(text):
     return label
 
 
+class Properties(Gtk.Grid):
+    def __init__(self, main_title, titles, _settings, widgets):
+        Gtk.Window.__init__(self)
+        self.set_row_spacing(18)
+        title = Gtk.Label()
+        title.set_markup(
+            "<big><big><big><big><big>{}</big></big></big></big></big>".format(main_title))
+        title.set_hexpand(True)
+        self.attach(title, 0, 0, 3, 1)
+
+        for i in range(len(_settings)):
+            temp_label = Gtk.Label()
+            temp_label.set_markup("<big>{}</big>".format(titles[i]))
+            self.attach(temp_label, 0, i+1, 1, 1)
+            spacer = Gtk.Label()
+            spacer.set_hexpand(True)
+            self.attach(spacer, 1, i+1, 1, 1)
+            if type(widgets[i]) == type(Gtk.Label()):
+                widgets[i].set_label(settings[_settings[i]])
+            elif type(widgets[i]) == type(Gtk.Entry()):
+                widgets[i].set_text(settings[_settings[i]])
+            self.attach(widgets[i], 2, i+1, 1, 1)
+        self.attach(Gtk.Button(label="Apply"), 2, len(settings), 1, 1)
+
+
 def generalSettings():
-    grid = Gtk.Grid()
-    grid.set_row_spacing(18)
 
-    end = 3
-    title = Gtk.Label()
-    title.set_markup(
-        "<big><big><big><big><big>General Settings</big></big></big></big></big>")
-    title.set_hexpand(True)
-    grid.attach(title, 0, 0, end, 1)
-
-    grid.attach(propLabel("Username"), 0, 1, 1, 1)
-    grid.attach(propLabel("E-Mail"), 0, 2, 1, 1)
-    grid.attach(propLabel("Units"), 0, 3, 1, 1)
-    grid.attach(propLabel("Location"), 0, 4, 1, 1)
-    grid.attach(propLabel("Timezone"), 0, 5, 1, 1)
-    spacer = Gtk.Label()
-    spacer.set_hexpand(True)
-    grid.attach(spacer, 1, 1, 1, 1)
-    return grid
+    titles = ["Username", "E-Mail", "Units",
+              "Country", "Region", "City", "Timezone"]
+    _settings = [1, 2, 4, 5, 6, 7, 8]
+    widgets = [Gtk.Entry(), Gtk.Entry(), Gtk.ComboBox(),
+               Gtk.Label(), Gtk.Label(), Gtk.Label(), Gtk.Label()]
+    return Properties("General Settings", titles, _settings, widgets)
 
 
 class Settings(Gtk.Window):
