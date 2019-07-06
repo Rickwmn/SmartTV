@@ -2,4 +2,7 @@
 - Store info in sqlite3 database WORK IN PROGRESS
 - Modify scripts to pull data from database DONE
 - make settings page WORK IN PROGRESS
-- make Login WORK IN PROGRESS
+- make Login ALMOST DONE
+- Optimization CRITICAL
+- Implement Songs
+- Implement Android Apps

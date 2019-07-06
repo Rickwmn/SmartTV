@@ -4,6 +4,7 @@ from requests import get
 from os.path import isfile
 from os import system
 from utils import getCardImg
+import multiprocessing
 
 if not isfile("./settings/data.db"):
     system("python3 setup.py")
@@ -26,7 +27,6 @@ class LoginButton(Gtk.Button):
         self.add(self.grid)
 
     def onClick(self, x):
-        print(x)
         system("python ./gui.py "+self.username)
         Gtk.main_quit()
 

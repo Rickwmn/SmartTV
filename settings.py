@@ -74,7 +74,7 @@ class Settings(Gtk.Window):
         self.main_divider = Gtk.Box(spacing=6)
         self.add(self.main_divider)
         self.leftbar = LeftBar(
-            actions=left_bar_actions, left_bar_width=LEFT_BAR_WIDTH, start_index=0)
+            actions=left_bar_actions, left_bar_width=LEFT_BAR_WIDTH, default_select=1)
         self.main_divider.pack_start(self.leftbar, False, True, 0)
         self.settings_view = MainStack(
             [

@@ -2,7 +2,7 @@ import weather
 from gi.repository import Gtk, Gdk, Gio
 from sys import argv
 from os import system, path
-from views import LeftBar, MainStack
+from views import LeftBar, MainStack, MoviePreview
 from utils import getCardImg, Action, Movie, getMovies, switchStack
 from requests import get
 from math import ceil, floor
@@ -60,24 +60,39 @@ class WeatherBox(Gtk.Grid):
         self.attach(label, 0, 1, 1, 1)
 
 
-class AppItem(Gtk.Button):
-    def __init__(self, name, image, width=300, heigth=150):
+class MovieItem(Gtk.Button):
+    def __init__(self, movie, width=230, heigth=345, force_wrap=False):
         Gtk.Button.__init__(self)
-        self.grid = Gtk.Grid()
+        self.movie = movie
+        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.label = Gtk.Label()
         self.label.set_line_wrap(True)
         self.label.set_justify(Gtk.Justification.CENTER)
-        self.label.set_label(name)
+        if force_wrap:
+            if len(movie.getTitle()) > 31:
+                self.label.set_label(movie.getTitle()[:28]+"...")
+            else:
+                self.label.set_label(movie.getTitle())
+        else:
+            self.label.set_label(movie.getTitle())
         self.label.set_valign(Gtk.Align.START)
-        fname = "./cache/cover="+name+".png"
-        self.grid.attach(getCardImg(
-            url=image, fname=fname, width=width, heigth=heigth), 0, 0, 1, 1)
-        self.grid.attach(self.label, 0, 1, 1, 1)
-        self.add(self.grid)
+        fname = "./cache/cover-medium="+movie.getTitle()+".png"
+        self.box.pack_start(getCardImg(
+            url=movie.getCovers()[1], fname=fname, width=width, heigth=heigth), False, False, 2)
+        self.box.pack_start(self.label, False, False, 2)
+        self.add(self.box)
+
+    def onClick(self):
+
+        window = MoviePreview(self.movie)
+        window.fullscreen()
+        window.connect("destroy", Gtk.main_quit)
+        window.show_all()
+        Gtk.main()
 
 
 class Category(Gtk.Box):
-    def __init__(self, category, items, width=300, heigth=150):
+    def __init__(self, category, items, width=230, heigth=345):
         Gtk.Box.__init__(
             self, orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.title = Gtk.Label(label=category)
@@ -93,8 +108,9 @@ class Category(Gtk.Box):
         self.grid.set_column_spacing(6)
         self.grid.set_column_homogeneous(True)
         for i, j in enumerate(items):
-            self.grid.attach(
-                AppItem(j.getTitle(), j.getCovers()[1], width=width, heigth=heigth), i, 0, 1, 1)
+            app_item = MovieItem(j, width=width, heigth=heigth)
+            app_item.connect("clicked", lambda x: x.onClick())
+            self.grid.attach(app_item, i, 0, 1, 1)
         self.view.add(self.grid)
 
 
@@ -114,13 +130,30 @@ class Trending(Gtk.ScrolledWindow):
         self.add(self.listview)
 
 
+class Movies(Gtk.ScrolledWindow):
+    def __init__(self):
+        Gtk.ScrolledWindow.__init__(self)
+        self.set_policy(
+            Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS)
+        self.movies = getMovies(
+            get("https://yts.lt/api/v2/list_movies.json?sort_by=year&minimum_rating=6&limit=30").text)
+        self.flowbox = Gtk.FlowBox()
+        self.flowbox.set_column_spacing(6)
+        self.flowbox.set_homogeneous(True)
+        for j in self.movies:
+            app_item = MovieItem(j, width=230, heigth=345, force_wrap=True)
+            app_item.connect("clicked", lambda x: x.onClick())
+            self.flowbox.add(app_item)
+        self.add(self.flowbox)
+
+
 class MainWindow(Gtk.Window):
     def __init__(self):
         self.main_view = MainStack(
             [
                 Trending(),
                 Gtk.Label(label="Apps"),
-                Gtk.Label(label="Movies"),
+                Movies(),
                 Gtk.Label(label="Songs"),
                 Gtk.Label(label="Files"),
                 Gtk.Label(label="Settings"),
@@ -142,9 +175,14 @@ class MainWindow(Gtk.Window):
         self.main_divider = Gtk.Box(spacing=6)
         self.add(self.main_divider)
         self.leftbar = LeftBar(
-            actions=left_bar_actions, left_bar_width=LEFT_BAR_WIDTH, start_index=1, ignore_start=1)
-        self.leftbar.listview.insert(WeatherBox(), 0)
-        self.main_divider.pack_start(self.leftbar, False, True, 0)
+            actions=left_bar_actions, left_bar_width=LEFT_BAR_WIDTH)
+        self.sidebar_divider = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=2)
+
+        self.sidebar_divider.pack_start(WeatherBox(), False, False, 0)
+        self.sidebar_divider.pack_start(self.leftbar, True, True, 0)
+
+        self.main_divider.pack_start(self.sidebar_divider, False, False, 0)
 
         self.main_divider.pack_end(self.main_view, True, True, 0)
 
