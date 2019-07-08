@@ -1,0 +1,5 @@
+settings/data.db
+downloads/**
+cache/**
+.vscode
+__pycache__

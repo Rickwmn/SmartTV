@@ -1,4 +1,4 @@
-from gi.repository import Gtk, Gio, Gdk, GdkPixbuf
+from gi.repository import Gtk, Gio, GdkPixbuf
 from views import LeftBar, MainStack
 from utils import Action, switchStack
 from sys import argv
@@ -57,8 +57,6 @@ def generalSettings():
 class Settings(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="SmartTV OpenSource")
-        self.set_default_size(Gdk.Screen.get_default().get_width(),
-                              Gdk.Screen.get_default().get_height())
         left_bar_actions = [
             Action("Back", "go-previous", lambda:Gtk.main_quit()),
             Action("General", "preferences-desktop",

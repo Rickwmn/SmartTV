@@ -1,7 +1,8 @@
-from gi.repository import Gtk, GdkPixbuf
+from gi.repository import Gtk, GdkPixbuf, Gio
 import requests
 import json
 from os.path import isfile
+from math import floor, ceil
 
 # class TorrentData
 
@@ -51,6 +52,9 @@ class Movie:
         return self.parsed["torrents"]
 
 
+
+
+
 def getMovies(jsonS):
     movies = []
     for i in json.loads(jsonS)["data"]["movies"]:
@@ -73,9 +77,23 @@ def getImageFromWeb(url, fname):
         outfile.write(r.content)
 
 
+def getStarRating(ratings):
+    not_starred = 5-ceil(ratings)
+    starred = floor(ratings)
+    semi_starred = int(ratings) != ratings
+    rating_widget = Gtk.Grid()
+    layout = ["starred" for i in range(
+        starred)]+["semi-starred" for i in range(semi_starred)]+["non-starred" for i in range(not_starred)]
+    for i, j in enumerate(layout):
+        image = Gtk.Image.new_from_icon_name(j, 3)
+        rating_widget.attach(image, i, 0, 1, 1)
+    return rating_widget
+
+
 def switchStack(index, stack):
     stack.set_visible_child(stack.get_children()[index])
     stack.get_children()[index].show()
+
 
 def getCardImg(url, fname, width=300, heigth=150):
     if not isfile(fname):

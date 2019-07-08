@@ -1,4 +1,4 @@
-from gi.repository import Gtk, Gdk, GdkPixbuf
+from gi.repository import Gtk,  GdkPixbuf
 import sqlite3
 from requests import get
 from os.path import isfile
@@ -34,8 +34,6 @@ class LoginButton(Gtk.Button):
 class MainWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="SmartTV OpenSource")
-        self.set_default_size(Gdk.Screen.get_default().get_width(),
-                              Gdk.Screen.get_default().get_height())
 
         self.grid = Gtk.Grid()
         self.grid.set_valign(Gtk.Align.CENTER)

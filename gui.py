@@ -1,11 +1,10 @@
 import weather
-from gi.repository import Gtk, Gdk, Gio
+from gi.repository import Gtk, Gio
 from sys import argv
 from os import system, path
 from views import LeftBar, MainStack, MoviePreview
 from utils import getCardImg, Action, Movie, getMovies, switchStack
 from requests import get
-from math import ceil, floor
 import sqlite3
 
 
@@ -83,7 +82,6 @@ class MovieItem(Gtk.Button):
         self.add(self.box)
 
     def onClick(self):
-
         window = MoviePreview(self.movie)
         window.fullscreen()
         window.connect("destroy", Gtk.main_quit)
@@ -136,7 +134,7 @@ class Movies(Gtk.ScrolledWindow):
         self.set_policy(
             Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS)
         self.movies = getMovies(
-            get("https://yts.lt/api/v2/list_movies.json?sort_by=year&minimum_rating=6&limit=30").text)
+            get("https://yts.lt/api/v2/list_movies.json?sort_by=year&minimum_rating=6&limit=20&page=5").text)
         self.flowbox = Gtk.FlowBox()
         self.flowbox.set_column_spacing(6)
         self.flowbox.set_homogeneous(True)
@@ -144,7 +142,11 @@ class Movies(Gtk.ScrolledWindow):
             app_item = MovieItem(j, width=230, heigth=345, force_wrap=True)
             app_item.connect("clicked", lambda x: x.onClick())
             self.flowbox.add(app_item)
-        self.add(self.flowbox)
+
+        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        self.box.pack_start(Gtk.Label("Filters..."), False, False, 0)
+        self.box.pack_start(self.flowbox, True, True, 0)
+        self.add(self.box)
 
 
 class MainWindow(Gtk.Window):
@@ -170,8 +172,6 @@ class MainWindow(Gtk.Window):
                    lambda: system("python3 " + path.abspath("settings.py") + " " + argv[1])),
         ]
         Gtk.Window.__init__(self, title="SmartTV OpenSource")
-        self.set_default_size(Gdk.Screen.get_default().get_width(),
-                              Gdk.Screen.get_default().get_height())
         self.main_divider = Gtk.Box(spacing=6)
         self.add(self.main_divider)
         self.leftbar = LeftBar(
