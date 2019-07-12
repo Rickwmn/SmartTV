@@ -3,14 +3,31 @@ import requests
 import json
 from os.path import isfile
 from math import floor, ceil
+import torrentclient
+from multiprocessing import Process
 
-# class TorrentData
+
+class TorrentData:
+    def __init__(self, raw_torrent_data):
+        self.url = raw_torrent_data["url"]
+        self.peers = raw_torrent_data["peers"]
+        self.seeds = raw_torrent_data["seeds"]
+        self.size = raw_torrent_data["size"]
+        self.size_bytes = raw_torrent_data["size_bytes"]
+        self.quality = raw_torrent_data["quality"]
+
+    def download(self):
+        p = Process(target=lambda: torrentclient.start_from_url(self.url))
+        p.start()
 
 
 class Movie:
     def __init__(self, jsonS):
         self.json = jsonS
         self.parsed = json.loads(self.json)
+
+    def getTrailerCode(self):
+        return self.parsed["yt_trailer_code"]
 
     def getId(self):
         return self.parsed["id"]
@@ -49,10 +66,10 @@ class Movie:
         return [self.parsed["small_cover_image"], self.parsed["medium_cover_image"], self.parsed["large_cover_image"]]
 
     def getTorrentData(self):
-        return self.parsed["torrents"]
+        return [TorrentData(i) for i in self.parsed["torrents"]]
 
-
-
+    def getRuntime(self):
+        return self.parsed["runtime"]
 
 
 def getMovies(jsonS):

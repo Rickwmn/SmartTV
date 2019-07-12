@@ -2,7 +2,6 @@ import libtorrent as lt
 import time
 import sys
 import urllib.request
-from multiprocessing import Process
 from os import remove
 import os
 
@@ -49,16 +48,7 @@ class Torrent:
         return 0
 
 
-def start(url):
+def start_from_url(url):
     mytorrent = Torrent()
     mytorrent.torrent_from_url(url)
     mytorrent.start()
-
-
-# p = Process(target=start,
-#             args=(
-#                 "https://yts.lt/torrent/download/BCEB706EA32EDD855FCA4426DF8A7831F53CC3EE")
-#             )
-# p.start()
-# while True:
-#     print("bla")

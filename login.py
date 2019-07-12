@@ -5,6 +5,7 @@ from os.path import isfile
 from os import system
 from utils import getCardImg
 import multiprocessing
+from screeninfo import get_monitors
 
 if not isfile("./settings/data.db"):
     system("python3 setup.py")
@@ -34,7 +35,7 @@ class LoginButton(Gtk.Button):
 class MainWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="SmartTV OpenSource")
-
+        self.set_default_size(get_monitors()[0].width,get_monitors()[0].height)
         self.grid = Gtk.Grid()
         self.grid.set_valign(Gtk.Align.CENTER)
         self.grid.set_halign(Gtk.Align.CENTER)

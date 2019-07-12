@@ -2,8 +2,9 @@ import weather
 from gi.repository import Gtk, Gio
 from sys import argv
 from os import system, path
-from views import LeftBar, MainStack, MoviePreview
+from views import LeftBar, MainStack, MoviePreview, ListTile
 from utils import getCardImg, Action, Movie, getMovies, switchStack
+from screeninfo import get_monitors
 from requests import get
 import sqlite3
 
@@ -116,7 +117,7 @@ class Trending(Gtk.ScrolledWindow):
     def __init__(self):
         Gtk.ScrolledWindow.__init__(self)
         categories = {
-            "      Newest Movies": getMovies(get("https://yts.lt/api/v2/list_movies.json?sort_by=year&minimum_rating=7&limit=12").text),
+            "      New Movies": getMovies(get("https://yts.lt/api/v2/list_movies.json?sort_by=year&minimum_rating=7&limit=12").text),
         }
         self.set_policy(
             Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
@@ -128,13 +129,11 @@ class Trending(Gtk.ScrolledWindow):
         self.add(self.listview)
 
 
-class Movies(Gtk.ScrolledWindow):
+class Movies(Gtk.Box):
     def __init__(self):
-        Gtk.ScrolledWindow.__init__(self)
-        self.set_policy(
-            Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS)
+        Gtk.Box.__init__(self, spacing=2, orientation=Gtk.Orientation.VERTICAL)
         self.movies = getMovies(
-            get("https://yts.lt/api/v2/list_movies.json?sort_by=year&minimum_rating=6&limit=20&page=5").text)
+            get("https://yts.lt/api/v2/list_movies.json?sort_by=year&minimum_rating=6&limit=30").text)
         self.flowbox = Gtk.FlowBox()
         self.flowbox.set_column_spacing(6)
         self.flowbox.set_homogeneous(True)
@@ -143,10 +142,12 @@ class Movies(Gtk.ScrolledWindow):
             app_item.connect("clicked", lambda x: x.onClick())
             self.flowbox.add(app_item)
 
-        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
-        self.box.pack_start(Gtk.Label("Filters..."), False, False, 0)
-        self.box.pack_start(self.flowbox, True, True, 0)
-        self.add(self.box)
+        # self.pack_start(self.search_bar, False, False, 0)
+        self.view = Gtk.ScrolledWindow()
+        self.view.set_policy(
+            Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS)
+        self.pack_start(self.view, True, True, 0)
+        self.view.add(self.flowbox)
 
 
 class MainWindow(Gtk.Window):
@@ -158,7 +159,6 @@ class MainWindow(Gtk.Window):
                 Movies(),
                 Gtk.Label(label="Songs"),
                 Gtk.Label(label="Files"),
-                Gtk.Label(label="Settings"),
             ])
         left_bar_actions = [
             Action("Trending", "go-home", lambda:switchStack(0, self.main_view)),
@@ -168,19 +168,27 @@ class MainWindow(Gtk.Window):
             Action("Songs", "media-optical-cd-audio",
                    lambda: switchStack(3, self.main_view)),
             Action("Files", "folder", lambda: switchStack(4, self.main_view)),
-            Action("Settings", "open-menu",
-                   lambda: system("python3 " + path.abspath("settings.py") + " " + argv[1])),
+            # Action("Settings", "open-menu",
+            #        lambda: system("python3 " + path.abspath("settings.py") + " " + argv[1])),
         ]
         Gtk.Window.__init__(self, title="SmartTV OpenSource")
+        self.set_default_size(get_monitors()[0].width,get_monitors()[0].height)
         self.main_divider = Gtk.Box(spacing=6)
         self.add(self.main_divider)
         self.leftbar = LeftBar(
             actions=left_bar_actions, left_bar_width=LEFT_BAR_WIDTH)
         self.sidebar_divider = Gtk.Box(
-            orientation=Gtk.Orientation.VERTICAL, spacing=2)
+            orientation=Gtk.Orientation.VERTICAL, spacing=6)
 
         self.sidebar_divider.pack_start(WeatherBox(), False, False, 0)
         self.sidebar_divider.pack_start(self.leftbar, True, True, 0)
+        settings_list = Gtk.ListBox()
+        settings_list.set_selection_mode(Gtk.SelectionMode.NONE)
+        settings_list.insert(ListTile("Settings","open-menu"),0)
+        settings_list.connect("row-activated",lambda x,y:system("python3 " + path.abspath("settings.py") + " " + argv[1]))
+
+        self.sidebar_divider.pack_end(settings_list,False,False,0)
+        
 
         self.main_divider.pack_start(self.sidebar_divider, False, False, 0)
 

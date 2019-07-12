@@ -1,4 +1,4 @@
-from gi.repository import Gtk, Gio, Gdk
+from gi.repository import Gtk, Gio, Gdk, WebKit2
 from utils import getCardImg, getStarRating
 from screeninfo import get_monitors
 from math import ceil, floor
@@ -26,7 +26,6 @@ class MoviePreview(Gtk.Window):
         height = get_monitors()[0].height
         aspect = height/750
         ratings = float(round(movie.getRating()/2, 1))
-
         self.movie = movie
         self.divider = Gtk.Box(spacing=18)
         self.image = getCardImg(movie.getCovers()[2], "./cache/cover-large={}".format(
@@ -47,12 +46,23 @@ class MoviePreview(Gtk.Window):
             "<big><big>{}</big></big>".format(movie.getDescription()))
         self.desc.set_line_wrap(True)
 
-        self.genres = Gtk.Box(spacing=4)
-        [self.genres.pack_start(Gtk.Label(label=i, opacity=0.7), False, False, 0)
-         for i in self.movie.getGenres()]
+        self.basic_info = Gtk.Label(
+            label="{}min / {}y / {}".format(self.movie.getRuntime(), self.movie.getYear(), self.movie.getLanguage()), opacity=0.7)
+        self.basic_info.set_halign(Gtk.Align.START)
+        self.genres = Gtk.Label(opacity=0.7)
+        self.genres.set_markup("<big>{}</big>".format(" ".join(
+            self.movie.getGenres())))
+        self.genres.set_halign(Gtk.Align.START)
 
+        self.webview = WebKit2.WebView()
+        self.webview.load_html(
+            '<style>iframe{{width:100%;height:100%}}body,html{{margin:0}}</style><iframe src="https://www.youtube.com/embed/{}" frameborder="0"></iframe>'.format(self.movie.getTrailerCode()))
+        # self.webview.set_vexpand(True)
         print("ID:"+str(movie.getId()))
+        self.trailer_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+
         self.grid = Gtk.Grid()
+        self.grid.set_row_homogeneous(False)
         self.grid.set_row_spacing(12)
         self.grid.attach(self.title, 0, 0, 2, 1)
         ratings_widget = getStarRating(ratings)
@@ -60,10 +70,13 @@ class MoviePreview(Gtk.Window):
         ratings_widget.set_valign(Gtk.Align.CENTER)
         self.grid.attach(ratings_widget, 2, 0, 1, 1)
         self.grid.attach(self.genres, 0, 1, 3, 1)
-        self.grid.attach(self.desc, 0, 2, 3, 1)
-
+        self.grid.attach(self.basic_info, 0, 2, 3, 1)
+        self.grid.attach(self.desc, 0, 3, 3, 1)
+        self.grid.attach(self.webview, 0, 4, 3, 3)
         self.divider.pack_end(self.grid, True, True, 0)
         self.add(self.divider)
+
+        # self.movie.getTorrentData()[0].download()
 
 
 class ListTile(Gtk.Box):
